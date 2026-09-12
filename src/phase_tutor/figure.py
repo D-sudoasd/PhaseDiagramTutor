@@ -188,8 +188,7 @@ def build_figure(
                 "沿这条竖线降温，就是凝固或热处理走过的相区序列"
                 "<extra></extra>"
             ),
-            showlegend=True,
-            legendgroup="overlay",
+            showlegend=False,
         )
     )
 
@@ -235,8 +234,7 @@ def build_figure(
                     "杠杆定律：离谁远，谁的量就多"
                     "<extra></extra>"
                 ),
-                showlegend=True,
-                legendgroup="overlay",
+                showlegend=False,
             )
         )
         fig.add_trace(
@@ -332,8 +330,7 @@ def build_figure(
                 "<i>方向键微调 · 点击相区移动</i>"
                 "<extra></extra>"
             ),
-            showlegend=True,
-            legendgroup="overlay",
+            showlegend=False,
         )
     )
 
@@ -370,21 +367,7 @@ def build_figure(
             color="#141a22",
         ),
         title=None,
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            x=0,
-            xanchor="left",
-            bgcolor="rgba(255,255,255,0.88)",
-            bordercolor="rgba(27,36,48,0.10)",
-            borderwidth=1,
-            font=dict(size=11),
-            itemsizing="constant",
-            itemclick=False,
-            itemdoubleclick=False,
-        ),
+        showlegend=False,
         xaxis=dict(
             title=diagram.x_label_zh,
             range=[diagram.x_min, diagram.x_max],
@@ -415,7 +398,7 @@ def build_figure(
             spikecolor="rgba(27,36,48,0.22)",
             spikethickness=1,
         ),
-        margin=dict(l=62, r=18, t=40, b=54),
+        margin=dict(l=62, r=18, t=16, b=52),
         hoverlabel=dict(
             bgcolor="rgba(255,255,255,0.96)",
             bordercolor="#c5ced8",
@@ -428,7 +411,7 @@ def build_figure(
         uirevision=uirevision,
         clickmode="event+select",
         dragmode=False,
-        height=660,
+        height=500,
     )
     return fig
 

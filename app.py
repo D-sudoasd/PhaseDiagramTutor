@@ -116,7 +116,7 @@ tut_idx = int(st.session_state.tutorial_idx)
 st.markdown(titlebar_html(get_diagram(st.session_state.diagram_id).title_zh), unsafe_allow_html=True)
 
 st.markdown('<div class="pd-toolbar-pad">', unsafe_allow_html=True)
-c1, c2, c3 = st.columns([1.45, 2.15, 1.15], gap="small", vertical_alignment="bottom")
+c1, c2, c3 = st.columns([1.35, 1.85, 1.35], gap="small", vertical_alignment="bottom")
 with c1:
     picked = st.selectbox("选择相图", titles, key="diagram_select")
     new_id = ids[titles.index(picked)]
@@ -124,38 +124,11 @@ with c1:
         _apply_diagram_defaults(new_id)
         st.rerun()
 with c2:
-    nav_l, nav_mid, nav_r = st.columns([0.28, 1.44, 0.28], vertical_alignment="bottom")
-    with nav_l:
-        if st.button(
-            "上一步",
-            key="tut_prev",
-            shortcut="PageUp",
-            icon=":material/chevron_left:",
-            disabled=tut_idx <= 0,
-            width="stretch",
-            help="导学路径上一步（PageUp）",
-        ):
-            st.session_state.pending_step = tut_idx - 1
-            st.rerun()
-    with nav_mid:
-        chosen_step = st.selectbox("导学路径（同一套解释器）", step_titles, key="tutorial_select")
-        new_idx = step_titles.index(chosen_step)
-        if new_idx != st.session_state.tutorial_idx:
-            st.session_state.pending_step = new_idx
-            st.rerun()
-    with nav_r:
-        if st.button(
-            "下一步",
-            key="tut_next",
-            shortcut="PageDown",
-            icon=":material/chevron_right:",
-            type="primary",
-            disabled=tut_idx >= len(STEPS) - 1,
-            width="stretch",
-            help="导学路径下一步（PageDown）",
-        ):
-            st.session_state.pending_step = tut_idx + 1
-            st.rerun()
+    chosen_step = st.selectbox("导学路径（同一套解释器）", step_titles, key="tutorial_select")
+    new_idx = step_titles.index(chosen_step)
+    if new_idx != st.session_state.tutorial_idx:
+        st.session_state.pending_step = new_idx
+        st.rerun()
 with c3:
     st.checkbox("冷却线跟随当前成分", key="follow", help="竖线始终对准当前点的成分。")
     if st.button(
@@ -168,10 +141,37 @@ with c3:
     ):
         _apply_diagram_defaults(st.session_state.diagram_id)
         st.rerun()
-st.markdown(
-    tutorial_stepper_html(tut_idx, len(STEPS), get_step(tut_idx).title_zh),
-    unsafe_allow_html=True,
-)
+nav_l, nav_mid, nav_r = st.columns([0.9, 2.4, 0.9], vertical_alignment="center")
+with nav_l:
+    if st.button(
+        "上一步",
+        key="tut_prev",
+        shortcut="PageUp",
+        icon=":material/chevron_left:",
+        disabled=tut_idx <= 0,
+        width="stretch",
+        help="导学路径上一步（PageUp）",
+    ):
+        st.session_state.pending_step = tut_idx - 1
+        st.rerun()
+with nav_mid:
+    st.markdown(
+        tutorial_stepper_html(tut_idx, len(STEPS), get_step(tut_idx).title_zh),
+        unsafe_allow_html=True,
+    )
+with nav_r:
+    if st.button(
+        "下一步",
+        key="tut_next",
+        shortcut="PageDown",
+        icon=":material/chevron_right:",
+        type="primary",
+        disabled=tut_idx >= len(STEPS) - 1,
+        width="stretch",
+        help="导学路径下一步（PageDown）",
+    ):
+        st.session_state.pending_step = tut_idx + 1
+        st.rerun()
 st.markdown("</div>", unsafe_allow_html=True)
 
 diagram = get_diagram(st.session_state.diagram_id)
@@ -212,10 +212,7 @@ with plot_col:
         )
         st.markdown(
             '<p class="pd-hint">在相区内部点一下放置当前点（不会吸到相界顶点）。'
-            "精细移动用图下坐标条，或键盘 <kbd class='pd-k'>←</kbd>"
-            "<kbd class='pd-k'>→</kbd> 调成分、"
-            "<kbd class='pd-k'>↑</kbd><kbd class='pd-k'>↓</kbd> 调温度。"
-            "长说明在右侧。</p>",
+            "精细移动用图下坐标条或方向键。长说明在右侧。</p>",
             unsafe_allow_html=True,
         )
         event = st.plotly_chart(
@@ -228,7 +225,7 @@ with plot_col:
             config={
                 "displaylogo": False,
                 "modeBarButtonsToRemove": ["lasso2d", "select2d"],
-                "displayModeBar": True,
+                "displayModeBar": False,
                 "scrollZoom": False,
                 "toImageButtonOptions": {
                     "format": "png",
@@ -294,7 +291,7 @@ with plot_col:
                     format="%.3f",
                     help="竖线：成分固定，温度从高到低。",
                 )
-        n1, n2, n3, n4 = st.columns(4)
+        n1, n2, n3, n4 = st.columns(4, gap="small")
         with n1:
             if st.button("成分 −", key="nudge_x_minus", shortcut="Left", type="tertiary", width="stretch"):
                 _queue_point(x - dx, T, diagram.x_min, diagram.x_max, diagram.t_min, diagram.t_max)
@@ -311,61 +308,61 @@ with plot_col:
         st.markdown(f"<div class='pd-note'>{escape(diagram.source_note_zh)}</div></div></div>", unsafe_allow_html=True)
 
 with inspect_col:
-    with st.container(border=True):
-        st.markdown(
-            '<div class="pd-panel"><p class="pd-panel-h">这个点在说什么</p><div class="pd-panel-b">',
-            unsafe_allow_html=True,
-        )
-        st.markdown("<p class='pd-q'>现在有哪些相</p>", unsafe_allow_html=True)
-        st.markdown(
-            f"<p class='pd-big'>{escape(interp.field_name_zh)}</p>{phase_chips_html(interp)}",
-            unsafe_allow_html=True,
-        )
-        st.markdown(f"<p class='pd-ans'>{escape(answers['phases'])}</p>", unsafe_allow_html=True)
-        st.markdown(
-            f"<div class='pd-kv'><span>成分</span><b>{x:.4g}　{escape(diagram.x_label_zh)}</b></div>"
-            f"<div class='pd-kv'><span>温度</span><b>{T:.1f} °C</b></div>"
-            f"<div class='pd-kv'><span>相律</span><b>C={interp.C}　P={interp.P}　F={interp.F}</b></div>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(freedom_pills_html(interp), unsafe_allow_html=True)
-        st.markdown("<p class='pd-q' style='margin-top:12px'>结线与杠杆定律</p>", unsafe_allow_html=True)
-        st.markdown(fraction_bar_html(interp), unsafe_allow_html=True)
-        st.markdown(phase_table_html(interp), unsafe_allow_html=True)
-        st.markdown(f"<p class='pd-ans'>{escape(answers['lever'])}</p>", unsafe_allow_html=True)
-        if interp.practical_zh:
-            st.markdown(f"<p class='pd-note'>{escape(interp.practical_zh)}</p>", unsafe_allow_html=True)
-        st.markdown("</div></div>", unsafe_allow_html=True)
+    with st.container(height=780):
+        with st.container(border=True):
+            st.markdown(
+                '<div class="pd-panel"><p class="pd-panel-h">这个点在说什么</p><div class="pd-panel-b">',
+                unsafe_allow_html=True,
+            )
+            st.markdown("<p class='pd-q'>现在有哪些相</p>", unsafe_allow_html=True)
+            st.markdown(
+                f"<p class='pd-big'>{escape(interp.field_name_zh)}</p>{phase_chips_html(interp)}",
+                unsafe_allow_html=True,
+            )
+            st.markdown(f"<p class='pd-ans'>{escape(answers['phases'])}</p>", unsafe_allow_html=True)
+            st.markdown(
+                f"<div class='pd-kv'><span>成分</span><b>{x:.4g}　{escape(diagram.x_label_zh)}</b></div>"
+                f"<div class='pd-kv'><span>温度</span><b>{T:.1f} °C</b></div>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(freedom_pills_html(interp), unsafe_allow_html=True)
+            st.markdown("<p class='pd-q' style='margin-top:12px'>结线与杠杆定律</p>", unsafe_allow_html=True)
+            st.markdown(fraction_bar_html(interp), unsafe_allow_html=True)
+            st.markdown(phase_table_html(interp), unsafe_allow_html=True)
+            st.markdown(f"<p class='pd-ans'>{escape(answers['lever'])}</p>", unsafe_allow_html=True)
+            if interp.practical_zh:
+                st.markdown(f"<p class='pd-note'>{escape(interp.practical_zh)}</p>", unsafe_allow_html=True)
+            st.markdown("</div></div>", unsafe_allow_html=True)
 
-    with st.container(border=True):
-        st.markdown(
-            '<div class="pd-panel" style="margin-top:8px"><p class="pd-panel-h">沿冷却线往下走</p><div class="pd-panel-b">',
-            unsafe_allow_html=True,
-        )
-        st.markdown("<p class='pd-q'>会穿过哪些相区、会不会碰到共晶/包晶/共析</p>", unsafe_allow_html=True)
-        if cool_labels:
-            jumped = st.selectbox("查看冷却线上的这一段", cool_labels, index=cool_idx)
-            jump_i = cool_labels.index(jumped)
-            if jump_i != cool_idx:
-                st.session_state.pending_T = cooling_jump_temperature(
-                    iso_steps, jump_i, diagram.t_min
-                )
-                st.rerun()
-        st.markdown(cooling_timeline_html(iso_steps, T), unsafe_allow_html=True)
-        st.markdown("</div></div>", unsafe_allow_html=True)
-    with st.expander("导学说明（可收起，不遮挡相图）", expanded=False, icon=":material/school:"):
-        st.markdown(f"**{step.title_zh}**  ·  {step.takeaway_zh}")
-        st.markdown(step.body_md)
-    with st.expander("完整文字读出（便于复制）", icon=":material/notes:"):
-        st.text(readout_text)
-        st.download_button(
-            "导出读出",
-            data=readout_text.encode("utf-8"),
-            file_name=f"{diagram.id}-readout.txt",
-            mime="text/plain",
-            icon=":material/download:",
-            help="把当前点的中文读出存成文本。",
-        )
+        with st.container(border=True):
+            st.markdown(
+                '<div class="pd-panel" style="margin-top:8px"><p class="pd-panel-h">沿冷却线往下走</p><div class="pd-panel-b">',
+                unsafe_allow_html=True,
+            )
+            st.markdown("<p class='pd-q'>会穿过哪些相区、会不会碰到共晶/包晶/共析</p>", unsafe_allow_html=True)
+            if cool_labels:
+                jumped = st.selectbox("查看冷却线上的这一段", cool_labels, index=cool_idx)
+                jump_i = cool_labels.index(jumped)
+                if jump_i != cool_idx:
+                    st.session_state.pending_T = cooling_jump_temperature(
+                        iso_steps, jump_i, diagram.t_min
+                    )
+                    st.rerun()
+            st.markdown(cooling_timeline_html(iso_steps, T), unsafe_allow_html=True)
+            st.markdown("</div></div>", unsafe_allow_html=True)
+        with st.expander("导学说明（可收起，不遮挡相图）", expanded=False, icon=":material/school:"):
+            st.markdown(f"**{step.title_zh}**  ·  {step.takeaway_zh}")
+            st.markdown(step.body_md)
+        with st.expander("完整文字读出（便于复制）", icon=":material/notes:"):
+            st.text(readout_text)
+            st.download_button(
+                "导出读出",
+                data=readout_text.encode("utf-8"),
+                file_name=f"{diagram.id}-readout.txt",
+                mime="text/plain",
+                icon=":material/download:",
+                help="把当前点的中文读出存成文本。",
+            )
 
 st.markdown(
     "<div class='pd-note' style='padding:0 4px 8px 4px'>这是教学工具：几何拓扑正确，用来建立「点 / 结线 / 竖线」三件套，不是 Thermo-Calc。"

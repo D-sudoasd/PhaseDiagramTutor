@@ -56,8 +56,20 @@ header[data-testid="stHeader"],
 div[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden; height: 0; }
 footer { visibility: hidden; height: 0; }
-.stDeployButton, button[kind="header"] { display: none !important; }
+.stDeployButton, button[kind="header"],
+[data-testid="stMainMenuButton"] { display: none !important; }
 [data-testid="stSidebar"] { display: none !important; }
+kbd[aria-label^="Shortcut"],
+.stApp button kbd {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
 
 .block-container, .stMainBlockContainer, [data-testid="stAppViewContainer"] > .main > div,
 [data-testid="stAppViewBlockContainer"],
@@ -265,13 +277,16 @@ footer { visibility: hidden; height: 0; }
 .pd-tl-d { font-size: 0.74rem; color: var(--pd-muted); line-height: 1.4; margin-top: 1px; }
 
 .pd-statusbar {
-  position: sticky; bottom: 0; z-index: 30;
+  position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
+  z-index: 9999 !important;
   display: flex; align-items: center; gap: 0;
   background: var(--pd-bar); color: #c9d6e2;
   font-size: 0.72rem; font-variant-numeric: tabular-nums;
   border-top: 1px solid #000; min-height: 26px;
   user-select: none;
 }
+.stApp { padding-bottom: 64px !important; }
+[data-testid="stAppViewContainer"], [data-testid="stMain"] { padding-bottom: 64px !important; }
 .pd-sb-item {
   padding: 4px 12px; border-right: 1px solid #2a3544; white-space: nowrap;
 }
@@ -313,7 +328,7 @@ div[data-testid="stSlider"] [data-testid="stTickBarMax"] {
   font-variant-numeric: tabular-nums; font-size: 0.7rem; color: var(--pd-muted);
 }
 
-.stButton button,
+.stButton button:not([kind="tertiary"]),
 [data-testid="stBaseButton-secondary"],
 [data-testid="stDownloadButton"] button {
   border-radius: 3px !important;
@@ -323,7 +338,7 @@ div[data-testid="stSlider"] [data-testid="stTickBarMax"] {
   font-weight: 600 !important;
   transition: background 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease !important;
 }
-.stButton button:hover,
+.stButton button:not([kind="tertiary"]):hover,
 [data-testid="stBaseButton-secondary"]:hover,
 [data-testid="stDownloadButton"] button:hover {
   background: #273140 !important;
@@ -345,10 +360,18 @@ div[data-testid="stSlider"] [data-testid="stTickBarMax"] {
   background: #ffffff !important;
   color: var(--pd-text) !important;
   border: 1px solid var(--pd-line) !important;
+  min-height: 30px !important;
+  padding: 2px 8px !important;
+  font-size: 0.75rem !important;
 }
 [data-testid="stBaseButton-tertiary"]:hover {
   background: #f4f7fa !important;
   border-color: #9aa8b6 !important;
+}
+.pd-toolbar-pad [data-testid="stBaseButton-secondary"],
+.pd-toolbar-pad [data-testid="stBaseButton-primary"] {
+  min-height: 36px !important;
+  white-space: nowrap !important;
 }
 [data-testid="stBaseButton-tertiary"]:disabled,
 .stButton button:disabled {
@@ -368,13 +391,16 @@ div[data-testid="stExpander"] details summary {
 div[data-testid="stExpander"] details summary:hover { color: var(--pd-accent) !important; }
 div[data-testid="stExpander"] details:focus-within { box-shadow: var(--pd-focus); }
 
+.js-plotly-plot .modebar-container,
 .js-plotly-plot .modebar {
   top: 6px !important; right: 8px !important;
-  background: rgba(255,255,255,0.92) !important;
-  border: 1px solid var(--pd-line) !important;
-  border-radius: 4px !important;
-  padding: 1px 2px !important;
+  background: transparent !important;
+  border: none !important;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
+.js-plotly-plot:hover .modebar-container,
+.js-plotly-plot:hover .modebar { opacity: 1; }
 .js-plotly-plot .hoverlayer .hovertext { filter: none; }
 
 kbd.pd-k {
