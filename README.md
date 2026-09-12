@@ -9,7 +9,8 @@
 需要 Python 3.10+。
 
 ```powershell
-cd E:\Vibe_coding\PhaseDiagramTutor
+git clone https://github.com/D-sudoasd/PhaseDiagramTutor.git
+cd PhaseDiagramTutor
 py -3 -m venv .venv
 .\.venv\Scripts\python -m pip install -r requirements.txt
 .\.venv\Scripts\streamlit run app.py
