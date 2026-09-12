@@ -5,7 +5,14 @@ import json
 import pytest
 
 from phase_tutor.diagrams.registry import get_diagram
-from phase_tutor.figure import build_figure, figure_to_json, lever_label_texts
+from phase_tutor.figure import (
+    HIT_LAYER_NAME,
+    build_figure,
+    figure_to_json,
+    lever_label_texts,
+    nearest_hit_point,
+    point_from_plotly_select,
+)
 from phase_tutor.interpreter import interpret, walk_isopleth
 from phase_tutor.readout import first_screen_answers, format_readout_text
 from phase_tutor.tutorial import STEPS, get_step, initial_controls
@@ -47,11 +54,24 @@ def test_figure_and_readout_fe_c_and_ti_two_phase():
         anns = payload.get("layout", {}).get("annotations") or []
         assert len(anns) >= 3
         xs = [float(a["x"]) for a in anns]
-        ys = [float(a["y"]) for a in anns]
         assert any(abs(v - interp.tie_line.left[0]) < 1e-6 for v in xs)
         assert any(abs(v - interp.tie_line.right[0]) < 1e-6 for v in xs)
-        assert any(abs(v - x) < 1e-6 for v in xs)
-        assert all(abs(v - T) < 1e-6 for v in ys)
+        from phase_tutor.geometry import point_in_polygon
+        from phase_tutor.figure import HIT_LAYER_NAME
+
+        names = [t.get("name", "") for t in payload["data"]]
+        assert HIT_LAYER_NAME in names
+        labeled = 0
+        for field in diagram.fields:
+            hits = [
+                a
+                for a in anns
+                if str(a.get("text", "")) == field.name_zh
+                and point_in_polygon(float(a["x"]), float(a["y"]), field.polygon)
+            ]
+            if hits:
+                labeled += 1
+        assert labeled >= 3, f"{diagram_id} field labels inside polygons: {labeled}"
 
         text = format_readout_text(interp)
         assert interp.phases
@@ -145,3 +165,19 @@ def test_steel_and_titanium_are_selectable():
     assert "ti_v" in ids
     assert "钢铁" in titles or "Fe" in titles
     assert "钛" in titles
+
+
+def test_hit_layer_does_not_snap_to_field_vertices():
+    diagram = get_diagram("fe_c")
+    hx, hT = nearest_hit_point(diagram, 0.40, 800.0)
+    verts = {(round(p[0], 8), round(p[1], 8)) for f in diagram.fields for p in f.polygon}
+    assert (round(hx, 8), round(hT, 8)) not in verts
+    result = interpret(diagram, hx, hT)
+    assert result.field_id == "alpha_gamma"
+
+    fig = build_figure(diagram, 0.40, 800.0)
+    hit_idx = next(i for i, t in enumerate(fig.data) if t.name == HIT_LAYER_NAME)
+    fake_vertex = {"curve_number": 0, "x": diagram.fields[0].polygon[0][0], "y": diagram.fields[0].polygon[0][1]}
+    assert point_from_plotly_select([fake_vertex], fig) is None
+    hit = {"curve_number": hit_idx, "x": hx, "y": hT}
+    assert point_from_plotly_select([hit], fig) == pytest.approx((hx, hT))

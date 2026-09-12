@@ -1,4 +1,4 @@
-from phase_tutor.geometry import point_in_polygon, point_on_segment
+from phase_tutor.geometry import point_in_polygon, point_on_segment, polygon_label_point
 
 
 def test_degenerate_segment_is_not_on_every_point():
@@ -18,3 +18,9 @@ def test_liquid_polygon_does_not_swallow_solid_region():
     )
     assert point_in_polygon(50.0, 1500.0, liquid) is True
     assert point_in_polygon(50.0, 1100.0, liquid) is False
+
+
+def test_polygon_label_point_is_inside():
+    square = ((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))
+    x, y = polygon_label_point(square)
+    assert point_in_polygon(x, y, square)

@@ -13,7 +13,7 @@ if str(src) not in sys.path:
 import streamlit as st
 
 from phase_tutor.diagrams.registry import all_diagrams, get_diagram
-from phase_tutor.figure import build_figure
+from phase_tutor.figure import build_figure, point_from_plotly_select
 from phase_tutor.interpreter import interpret, walk_isopleth
 from phase_tutor.readout import (
     cooling_jump_temperature,
@@ -137,53 +137,11 @@ with c3:
 st.markdown("</div>", unsafe_allow_html=True)
 
 diagram = get_diagram(st.session_state.diagram_id)
-
-st.markdown('<div class="pd-status-pad">', unsafe_allow_html=True)
-ctrl1, ctrl2, ctrl3 = st.columns(3)
-with ctrl1:
-    st.slider(
-        "拖动成分",
-        min_value=float(diagram.x_min),
-        max_value=float(diagram.x_max),
-        step=float((diagram.x_max - diagram.x_min) / 400.0),
-        key="x",
-        help="横轴位置。点在相图上左右移动。",
-    )
-with ctrl2:
-    st.slider(
-        "拖动温度",
-        min_value=float(diagram.t_min),
-        max_value=float(diagram.t_max),
-        step=float((diagram.t_max - diagram.t_min) / 400.0),
-        key="T",
-        help="纵轴位置。点在相图上上下移动。",
-    )
-with ctrl3:
-    if st.session_state.follow:
-        st.session_state.iso_x = float(st.session_state.x)
-        st.slider(
-            "冷却线成分（当前跟随）",
-            min_value=float(diagram.x_min),
-            max_value=float(diagram.x_max),
-            value=float(st.session_state.iso_x),
-            step=float((diagram.x_max - diagram.x_min) / 400.0),
-            disabled=True,
-            help="竖线：成分固定，温度从高到低，对应凝固或热处理。",
-        )
-    else:
-        st.slider(
-            "拖动冷却线",
-            min_value=float(diagram.x_min),
-            max_value=float(diagram.x_max),
-            step=float((diagram.x_max - diagram.x_min) / 400.0),
-            key="iso_x",
-            help="竖线：成分固定，温度从高到低，对应凝固或热处理。",
-        )
-st.markdown("</div>", unsafe_allow_html=True)
-
+if st.session_state.follow:
+    st.session_state.iso_x = float(st.session_state.x)
 x = float(st.session_state.x)
 T = float(st.session_state.T)
-iso_x = float(st.session_state.x if st.session_state.follow else st.session_state.iso_x)
+iso_x = float(st.session_state.iso_x)
 interp = interpret(diagram, x, T)
 iso_steps = walk_isopleth(diagram, iso_x)
 answers = first_screen_answers(interp, iso_steps, iso_x)
@@ -195,14 +153,14 @@ if cool_labels:
     cool_idx = min(max(cool_idx, 0), len(cool_labels) - 1)
 
 st.markdown('<div class="pd-workspace">', unsafe_allow_html=True)
-plot_col, inspect_col = st.columns([1.62, 1.0], gap="small")
+plot_col, inspect_col = st.columns([1.72, 1.0], gap="small")
 with plot_col:
     st.markdown(
         f'<div class="pd-panel"><p class="pd-panel-h">相图 · {diagram.title_zh}</p><div class="pd-panel-b">',
         unsafe_allow_html=True,
     )
     st.markdown(
-        '<p class="pd-hint">在图上点一下放置当前点。悬停相区、液相线 / 固相线 / 溶解度曲线、结线查看注释。长说明在右侧，不盖住图。</p>',
+        '<p class="pd-hint">在相区内部点一下放置当前点（不会吸到相界顶点）。精细移动用图下坐标条。长说明在右侧。</p>',
         unsafe_allow_html=True,
     )
     event = st.plotly_chart(
@@ -211,22 +169,66 @@ with plot_col:
         on_select="rerun",
         selection_mode="points",
         key="phase_plot",
-        config={"displaylogo": False, "modeBarButtonsToRemove": ["lasso2d", "select2d"]},
+        config={
+            "displaylogo": False,
+            "modeBarButtonsToRemove": ["lasso2d", "select2d", "pan2d", "autoScale2d"],
+            "scrollZoom": False,
+        },
     )
     try:
         points = event.selection.points if event is not None else []
     except Exception:
         points = []
-    if points:
-        pt = points[0]
-        px = pt.get("x") if isinstance(pt, dict) else getattr(pt, "x", None)
-        py = pt.get("y") if isinstance(pt, dict) else getattr(pt, "y", None)
-        if px is not None and py is not None:
-            px = min(max(float(px), diagram.x_min), diagram.x_max)
-            py = min(max(float(py), diagram.t_min), diagram.t_max)
-            if abs(px - x) > 1e-6 or abs(py - T) > 1e-6:
-                st.session_state.pending_point = (px, py)
-                st.rerun()
+    picked = point_from_plotly_select(points, fig)
+    if picked is not None:
+        px, py = picked
+        px = min(max(px, diagram.x_min), diagram.x_max)
+        py = min(max(py, diagram.t_min), diagram.t_max)
+        if abs(px - x) > 1e-6 or abs(py - T) > 1e-6:
+            st.session_state.pending_point = (px, py)
+            st.rerun()
+    st.markdown('<div class="pd-status-pad" style="padding:8px 0 0 0;background:transparent;border:0">', unsafe_allow_html=True)
+    ctrl1, ctrl2, ctrl3 = st.columns(3)
+    with ctrl1:
+        st.slider(
+            "拖动成分",
+            min_value=float(diagram.x_min),
+            max_value=float(diagram.x_max),
+            step=float((diagram.x_max - diagram.x_min) / 400.0),
+            key="x",
+            help="横轴。与图上当前点是同一套坐标。",
+        )
+    with ctrl2:
+        st.slider(
+            "拖动温度",
+            min_value=float(diagram.t_min),
+            max_value=float(diagram.t_max),
+            step=float((diagram.t_max - diagram.t_min) / 400.0),
+            key="T",
+            help="纵轴。与图上当前点是同一套坐标。",
+        )
+    with ctrl3:
+        if st.session_state.follow:
+            st.session_state.iso_x = float(st.session_state.x)
+            st.slider(
+                "冷却线成分（当前跟随）",
+                min_value=float(diagram.x_min),
+                max_value=float(diagram.x_max),
+                value=float(st.session_state.iso_x),
+                step=float((diagram.x_max - diagram.x_min) / 400.0),
+                disabled=True,
+                help="竖线：成分固定，温度从高到低。",
+            )
+        else:
+            st.slider(
+                "拖动冷却线",
+                min_value=float(diagram.x_min),
+                max_value=float(diagram.x_max),
+                step=float((diagram.x_max - diagram.x_min) / 400.0),
+                key="iso_x",
+                help="竖线：成分固定，温度从高到低。",
+            )
+    st.markdown("</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='pd-note'>{diagram.source_note_zh}</div></div></div>", unsafe_allow_html=True)
 
 with inspect_col:
@@ -255,7 +257,6 @@ with inspect_col:
         unsafe_allow_html=True,
     )
     st.markdown("<p class='pd-q'>会穿过哪些相区、会不会碰到共晶/包晶/共析</p>", unsafe_allow_html=True)
-    st.markdown(f"<p class='pd-ans'>{answers['cooling']}</p>", unsafe_allow_html=True)
     if cool_labels:
         jumped = st.selectbox("查看冷却线上的这一段", cool_labels, index=cool_idx)
         jump_i = cool_labels.index(jumped)

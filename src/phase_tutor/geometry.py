@@ -147,3 +147,36 @@ def point_in_polygon(
             if px < xinters:
                 inside = not inside
     return inside
+
+
+def polygon_label_point(polygon: Sequence[Point]) -> Point:
+    """A point inside the polygon for a short name, near the vertex-average."""
+    pts = list(polygon)
+    if pts and pts[0] == pts[-1]:
+        pts = pts[:-1]
+    cleaned: list[Point] = []
+    for p in pts:
+        if not cleaned or p != cleaned[-1]:
+            cleaned.append(p)
+    if len(cleaned) < 3:
+        return cleaned[0] if cleaned else (0.0, 0.0)
+    cx = sum(p[0] for p in cleaned) / len(cleaned)
+    cy = sum(p[1] for p in cleaned) / len(cleaned)
+    if point_in_polygon(cx, cy, cleaned, include_edge=True):
+        return (cx, cy)
+    xs = [p[0] for p in cleaned]
+    ys = [p[1] for p in cleaned]
+    xmin, xmax = min(xs), max(xs)
+    ymin, ymax = min(ys), max(ys)
+    best = cleaned[0]
+    best_d = 1e18
+    for i in range(9):
+        for j in range(9):
+            x = xmin + (xmax - xmin) * (i + 0.5) / 9
+            y = ymin + (ymax - ymin) * (j + 0.5) / 9
+            if not point_in_polygon(x, y, cleaned, include_edge=False):
+                continue
+            d = (x - cx) ** 2 + (y - cy) ** 2
+            if d < best_d:
+                best, best_d = (x, y), d
+    return best
