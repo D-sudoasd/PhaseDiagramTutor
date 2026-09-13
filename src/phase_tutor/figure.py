@@ -106,6 +106,7 @@ def build_figure(
     isopleth_x: float | None = None,
     interp: Interpretation | None = None,
     show_cooling_marks: bool = True,
+    uirevision: str = "phase-tutor",
 ) -> go.Figure:
     if interp is None:
         interp = interpret(diagram, x, T)
@@ -126,7 +127,9 @@ def build_figure(
                 name=field.name_zh,
                 hovertemplate=(
                     f"<b>相区</b>：{field.name_zh}<br>"
-                    f"{field.hover_zh}<extra></extra>"
+                    f"{field.hover_zh}<br>"
+                    "<i>点击相区内部以放置当前点</i>"
+                    "<extra></extra>"
                 ),
                 showlegend=False,
             )
@@ -274,16 +277,58 @@ def build_figure(
             xshift=4,
         )
 
+    if diagram.special_points:
+        fig.add_trace(
+            go.Scatter(
+                x=[p.x for p in diagram.special_points],
+                y=[p.T for p in diagram.special_points],
+                mode="markers",
+                marker=dict(
+                    size=8,
+                    color="#1b2430",
+                    symbol="diamond",
+                    line=dict(width=1, color="white"),
+                ),
+                name="特征点",
+                text=[f"<b>{p.label_zh}</b><br>{p.hover_zh}" for p in diagram.special_points],
+                hovertemplate="%{text}<extra></extra>",
+                showlegend=False,
+            )
+        )
+
+    fig.add_hline(
+        y=T,
+        line=dict(color="rgba(18,26,38,0.28)", width=1, dash="dot"),
+        layer="below",
+    )
+
     fig.add_trace(
         go.Scatter(
             x=[x],
             y=[T],
             mode="markers",
-            marker=dict(size=14, color="#111111", line=dict(width=2, color="white"), symbol="x"),
+            marker=dict(
+                size=22,
+                color="rgba(12,18,25,0.06)",
+                line=dict(width=1.4, color="#0c1219"),
+                symbol="circle-open",
+            ),
+            hoverinfo="skip",
+            showlegend=False,
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=[x],
+            y=[T],
+            mode="markers",
+            marker=dict(size=13, color="#111111", line=dict(width=2, color="white"), symbol="x"),
             name="当前点",
             hovertemplate=(
                 f"<b>当前点</b><br>成分 {x:.3g}<br>温度 {T:.1f} °C<br>"
-                f"相区：{interp.field_name_zh}<extra></extra>"
+                f"相区：{interp.field_name_zh}<br>"
+                "<i>方向键微调 · 点击相区移动</i>"
+                "<extra></extra>"
             ),
             showlegend=False,
         )
@@ -316,7 +361,11 @@ def build_figure(
 
     fig.update_layout(
         template="plotly_white",
-        font=dict(family="Microsoft YaHei, Noto Sans SC, Segoe UI, sans-serif", size=12, color="#1b2430"),
+        font=dict(
+            family="IBM Plex Sans, Noto Sans SC, Microsoft YaHei, Segoe UI, sans-serif",
+            size=12,
+            color="#141a22",
+        ),
         title=None,
         showlegend=False,
         xaxis=dict(
@@ -326,8 +375,13 @@ def build_figure(
             showgrid=True,
             gridcolor="rgba(27,36,48,0.08)",
             zeroline=False,
-            linecolor="#9aa6b2",
+            linecolor="#6f7b88",
             mirror=True,
+            showspikes=True,
+            spikemode="across",
+            spikesnap="cursor",
+            spikecolor="rgba(27,36,48,0.22)",
+            spikethickness=1,
         ),
         yaxis=dict(
             title=diagram.y_label_zh,
@@ -336,21 +390,28 @@ def build_figure(
             showgrid=True,
             gridcolor="rgba(27,36,48,0.08)",
             zeroline=False,
-            linecolor="#9aa6b2",
+            linecolor="#6f7b88",
             mirror=True,
+            showspikes=True,
+            spikemode="across",
+            spikesnap="cursor",
+            spikecolor="rgba(27,36,48,0.22)",
+            spikethickness=1,
         ),
-        margin=dict(l=58, r=16, t=10, b=52),
+        margin=dict(l=62, r=18, t=16, b=52),
         hoverlabel=dict(
-            bgcolor="white",
-            font=dict(family="Microsoft YaHei, Noto Sans SC, sans-serif", size=12, color="#1b2430"),
+            bgcolor="rgba(255,255,255,0.96)",
+            bordercolor="#c5ced8",
+            font=dict(family="IBM Plex Sans, Noto Sans SC, sans-serif", size=12, color="#141a22"),
             align="left",
         ),
-        plot_bgcolor="#f7f9fb",
+        hovermode="closest",
+        plot_bgcolor="#f6f3ea",
         paper_bgcolor="#ffffff",
-        uirevision="phase-tutor",
+        uirevision=uirevision,
         clickmode="event+select",
         dragmode=False,
-        height=640,
+        height=500,
     )
     return fig
 
