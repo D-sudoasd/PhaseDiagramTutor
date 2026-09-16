@@ -1,12 +1,12 @@
-# 相图导读
+# 相图导读（PhaseDiagramTutor）
 
-中文交互相图工作台：把二元 **T–x 相图**读成「现在有哪些相、各是什么成分、各占多少」，再沿等成分竖线看凝固/热处理会穿过什么。
+中文交互相图工作台：把二元 **T–x 相图**读成「现在有哪些相、各是什么成分、各占多少」，再沿等成分竖线看凝固 / 热处理会穿过什么。
 
-面向金属材料研究者。**不是 CALPHAD，也不是 Thermo-Calc。** 内置曲线是教学拓扑：不变点用一套自洽的教材常用数，用来建立点 / 结线 / 杠杆 / 冷却线，而不是替代商业相图计算。
+面向金属材料学习者与研究者。**不是 CALPHAD，也不是 Thermo-Calc。** 内置曲线是教学拓扑：不变点用一套自洽的教材常用数，用来建立点 / 结线 / 杠杆 / 冷却线，而不是替代商业相图计算或手册精确截面。
+
+包名：`phase-diagram-tutor` · 版本 **0.1.0** · 需要 **Python 3.10+**
 
 ## 运行
-
-需要 Python 3.10+。
 
 ```powershell
 git clone https://github.com/D-sudoasd/PhaseDiagramTutor.git
@@ -16,11 +16,24 @@ py -3 -m venv .venv
 .\.venv\Scripts\streamlit run app.py
 ```
 
-或：
+或一键：
 
 ```powershell
 .\run.ps1
 ```
+
+（`run.ps1` 会在缺少 `.venv` 时创建环境并安装依赖，然后以 `streamlit run app.py --server.headless true` 启动。）
+
+Linux / macOS：
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
+
+也可：`python -m pip install -e .`（见 `pyproject.toml`），再 `streamlit run app.py`。
 
 测试：
 
@@ -28,7 +41,9 @@ py -3 -m venv .venv
 .\.venv\Scripts\python -m pytest
 ```
 
-浏览器打开后：选一张图或走「导学路径」。**在相区内部点一下**放置当前点（点在内部，不会吸到相界顶点）；精细移动用图下方的成分/温度条。右侧三块始终可见——**现在有哪些相**、**结线与杠杆定律**、**沿冷却线往下走**。长说明在展开栏里，不盖住相区。
+浏览器打开后：选一张图或走「导学路径」。**在相区内部点一下**放置当前点（点在内部，不会吸到相界顶点）；精细移动用图下方的成分 / 温度条。右侧三块始终可见——**现在有哪些相**、**结线与杠杆定律**、**沿冷却线往下走**。长说明在展开栏里，不盖住相区。
+
+依赖：Streamlit、Plotly、NumPy（`requirements.txt` / `pyproject.toml`）。
 
 ## 内置相图
 
@@ -49,7 +64,7 @@ Fe–Fe₃C 与解释器共用同一套数，不混手册：
 
 ## 结构
 
-```
+```text
 app.py                 Streamlit 入口（中文工作台）
 src/phase_tutor/
   interpreter.py       相区、结线、杠杆、相律、冷却线（无 UI）
@@ -64,8 +79,14 @@ tests/                 pytest + Streamlit AppTest
 
 ## 范围
 
-- 做：二元 T–x 读点、结线、杠杆定律、等成分冷却、共晶/包晶/共析。
-- 不做：三元相图、TTT/CCT、Gibbs 能量、商业牌号精确截面。
+| 做 | 不做 |
+| --- | --- |
+| 二元 T–x 读点、结线、杠杆定律 | 三元相图 |
+| 等成分冷却、共晶 / 包晶 / 共析直觉 | TTT / CCT |
+| 教学拓扑与导学路径 | Gibbs 能量最小化、CALPHAD 数据库 |
+| | 商业牌号精确截面 |
+
+内置温度与成分是教材常用示意值；发表或工艺决策请对照原始文献 / 商业软件 / 手册。
 
 ## 许可
 
