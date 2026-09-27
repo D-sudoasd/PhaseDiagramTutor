@@ -1,4 +1,39 @@
-# 相图导读（PhaseDiagramTutor）
+<p align="center">
+  <img src="assets/readme/hero.png" width="100%" alt="PhaseDiagramTutor — Learn binary phase diagrams through interactive exploration / 通过交互探索学习二元相图. Conceptual illustration / 概念插图。">
+</p>
+
+# PhaseDiagramTutor
+
+**Learn binary phase diagrams through interactive exploration**
+
+**通过交互探索学习二元相图**
+
+[Overview / 项目概览](#overview--项目概览) · [Start / 开始使用](#start--开始使用) · [Reference / 详细说明](#reference--详细说明)
+
+## Overview / 项目概览
+
+Choose composition and temperature, inspect the present phases, apply tie lines and the lever rule, and follow a cooling path through a teaching diagram.
+
+选择成分与温度，检查存在的相，应用结线和杠杆定律，并沿教学相图中的冷却路径观察相变过程。
+
+- **Phase-field exploration** — 查看单相区与两相区。
+- **Tie lines and fractions** — 联系结线端点与杠杆定律。
+- **Guided cooling paths** — 按导学路径理解先析出相与相变。
+
+## Start / 开始使用
+
+```powershell
+py -m pip install -r requirements.txt
+streamlit run app.py
+```
+
+Built-in diagrams are teaching models. They do not replace CALPHAD calculations or validated alloy-specific phase diagrams.
+
+内置相图为教学模型，不能替代 CALPHAD 计算或经验证的具体合金相图。
+
+*Cover: AI-generated conceptual illustration. 封面为 AI 生成的概念插图。*
+
+## Reference / 详细说明
 
 中文交互相图工作台：把二元 **T–x 相图**读成「现在有哪些相、各是什么成分、各占多少」，再沿等成分竖线看凝固 / 热处理会穿过什么。
 
