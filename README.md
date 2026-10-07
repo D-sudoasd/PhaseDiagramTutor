@@ -23,6 +23,18 @@ A Chinese interactive teaching workbench for binary temperature–composition di
 
 内置曲线和不变点用于教学。具体合金的工艺或研究判断仍应依据原始文献和适用相图；本工具不执行 CALPHAD 计算。
 
+## 原理示意 / Principle schematic
+
+<p align="center">
+  <img src="assets/readme/principle.png" width="100%" alt="两相区结线、总体成分与杠杆定律 — conceptual schematic / 概念示意图">
+</p>
+
+*概念示意：在 α+β 两相区，结线端点给出两相成分，总体成分 C₀ 将结线分成两段；各相比例取对侧段长与总长之比。图中相界为教学几何，不是实测合金相图。*
+
+*Conceptual schematic: tie-line endpoints give phase compositions in an α+β field, and the overall composition C₀ divides the line; each phase fraction is the opposite segment divided by total length. Boundaries are teaching geometry, not a measured alloy phase diagram.*
+
+[查看完整示意图 / View full-size schematic](assets/readme/principle.png)
+
 ## 运行
 
 ```powershell
