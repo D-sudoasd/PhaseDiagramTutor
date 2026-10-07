@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/readme/hero.png" width="100%" alt="PhaseDiagramTutor — Learn binary phase diagrams through interactive exploration / 通过交互探索学习二元相图. Conceptual illustration / 概念插图。">
+</p>
+
 # PhaseDiagramTutor
 
 **在二元相图上选一个成分和温度，读出相组成、结线、杠杆定律和冷却过程。**
@@ -8,14 +12,12 @@ A Chinese interactive teaching workbench for binary temperature–composition di
 
 [![MIT](https://img.shields.io/badge/License-MIT-455A64)](LICENSE) [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 
-```mermaid
-flowchart TD
-  A[选择教学相图] --> B[点击成分–温度点]
-  B --> C[判断当前相区]
-  C --> D[读取结线端点与相成分]
-  D --> E[用杠杆定律查看相比例]
-  E --> F[沿等成分冷却线观察相变]
-```
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/readme/diagrams/workflow-readme-md-1-mobile.svg">
+  <img src="assets/readme/diagrams/workflow-readme-md-1.svg" width="100%" alt="PhaseDiagramTutor — workflow schematic / 流程示意图">
+</picture>
+
+<sub>[Editable diagram source / 可编辑图源](assets/readme/diagrams/workflow-readme-md-1.mmd)</sub>
 
 第一次使用可选 **Cu–Ni 完全互溶**，先在单相区与两相区各点一次，再用成分/温度滑条移动。右侧同时给出相区、结线与冷却线解释；“导学路径”按步骤引导。
 
