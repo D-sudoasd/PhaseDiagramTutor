@@ -1,45 +1,25 @@
-<p align="center">
-  <img src="assets/readme/hero.png" width="100%" alt="PhaseDiagramTutor — Learn binary phase diagrams through interactive exploration / 通过交互探索学习二元相图. Conceptual illustration / 概念插图。">
-</p>
-
 # PhaseDiagramTutor
 
-**Learn binary phase diagrams through interactive exploration**
+**在二元相图上选一个成分和温度，读出相组成、结线、杠杆定律和冷却过程。**
 
-**通过交互探索学习二元相图**
+A Chinese interactive teaching workbench for binary temperature–composition diagrams. Materials students can connect a point on a diagram to the phases present, their compositions and fractions, then follow an isopleth on cooling.
 
-[Overview / 项目概览](#overview--项目概览) · [Start / 开始使用](#start--开始使用) · [Reference / 详细说明](#reference--详细说明)
+[启动工作台](#运行) · [五张内置相图](#内置相图) · [解释器与界面](#结构) · [教学范围](#范围)
 
-## Overview / 项目概览
+[![MIT](https://img.shields.io/badge/License-MIT-455A64)](LICENSE) [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 
-Choose composition and temperature, inspect the present phases, apply tie lines and the lever rule, and follow a cooling path through a teaching diagram.
-
-选择成分与温度，检查存在的相，应用结线和杠杆定律，并沿教学相图中的冷却路径观察相变过程。
-
-- **Phase-field exploration** — 查看单相区与两相区。
-- **Tie lines and fractions** — 联系结线端点与杠杆定律。
-- **Guided cooling paths** — 按导学路径理解先析出相与相变。
-
-## Start / 开始使用
-
-```powershell
-py -m pip install -r requirements.txt
-streamlit run app.py
+```mermaid
+flowchart TD
+  A[选择教学相图] --> B[点击成分–温度点]
+  B --> C[判断当前相区]
+  C --> D[读取结线端点与相成分]
+  D --> E[用杠杆定律查看相比例]
+  E --> F[沿等成分冷却线观察相变]
 ```
 
-Built-in diagrams are teaching models. They do not replace CALPHAD calculations or validated alloy-specific phase diagrams.
+第一次使用可选 **Cu–Ni 完全互溶**，先在单相区与两相区各点一次，再用成分/温度滑条移动。右侧同时给出相区、结线与冷却线解释；“导学路径”按步骤引导。
 
-内置相图为教学模型，不能替代 CALPHAD 计算或经验证的具体合金相图。
-
-*Cover: AI-generated conceptual illustration. 封面为 AI 生成的概念插图。*
-
-## Reference / 详细说明
-
-中文交互相图工作台：把二元 **T–x 相图**读成「现在有哪些相、各是什么成分、各占多少」，再沿等成分竖线看凝固 / 热处理会穿过什么。
-
-面向金属材料学习者与研究者。**不是 CALPHAD，也不是 Thermo-Calc。** 内置曲线是教学拓扑：不变点用一套自洽的教材常用数，用来建立点 / 结线 / 杠杆 / 冷却线，而不是替代商业相图计算或手册精确截面。
-
-包名：`phase-diagram-tutor` · 版本 **0.1.0** · 需要 **Python 3.10+**
+内置曲线和不变点用于教学。具体合金的工艺或研究判断仍应依据原始文献和适用相图；本工具不执行 CALPHAD 计算。
 
 ## 运行
 
